@@ -1,106 +1,100 @@
-#!/usr/bin/env python3
-# mimsmind0.py
-# Sample Exam #1
-# https://www.ischool.berkeley.edu/intranet/students/newstudents/info206/
-###############################################################################
-# Import
-import sys
-import random
+""" 
+usage: python mimsmind0.py [length]
 
+In this version, the program generates a random number with number of digits equal to length. 
+If the command line argument length is not provided, the default value is 1. 
+Then, the program prompts the user to type in a guess, informing the user of the number of digits expected. 
+The program will then read the user input, and provide basic feedback to the user. 
+If the guess is correct, the program will print a congratulatory message with the number of guesses made and terminate the game. 
+Otherwise, the program will print a message asking the user to guess a higher or lower number, 
+and prompt the user to type in the next guess.
+
+"""
+
+# Imports
+import random
+import sys
 
 # Body
-def get_length():
-    if len(sys.argv) == 2:
-        length = sys.argv[1]
-    else:
-        length = 1
-    return length
 
+# define global variables
+numberDigits = 1 # number of digits
+mainNumber = 0 # the corrent answer to the game
+numberTries = 0
 
-# Two get_random functions are presented for teaching purposes.
-# Comment out the second to test the first (the second overwrites the first).
-# get_random with exponentiation
-def get_random(length):
-    length = int(length)
-    upper = (10**length) - 1
-    lower = (10**(length-1))
-    if length == 1:
-        lower = 0
-    rand_num = random.randint(lower, upper)
-    return rand_num
+# function to check if the command line argument is valid or not, if valid assign the value to numberDigits
+# def CheckCommandLineArgument(argv):
+#   if(len(argv) == 1):
+#       return True
+#   elif(len(argv) == 2):
+#       # check if the 2nd input is actually an integer
+#       try:
+#           userLengthInput = int(argv[1])
+#           if(userLengthInput <= 0):
+#               raise ValueError
+#           else:
+#               numberDigits = userLengthInput
+#           return True
+#       except ValueError:
+#           print("\n*********************************************")
+#           print("Invalid User Input: " + str(argv[1]) + ". Please Enter A Valid Positive Integer")
+            # return False
 
+# function to start the game
+def StartGame(numberDigits):
+    # generate a random number based on the length input by the user
+    upperLimit = (10**numberDigits) - 1
+    mainNumber = random.randint(0, upperLimit)
+    # print(mainNumber)
 
-# get_random with strings and for loop
-def get_random(length):
-    rand_num = ""
-    for n in range(int(length)):
-        rand_num += str(random.randint(0, 9))
-    return int(rand_num)
+    print("\nLet's play the mimsmind0 game.\n")
 
+    StartGuessing(numberDigits, mainNumber, numberTries)
 
-def get_initial_guess(length):
-    guess = input('\nGuess a {0}-digit number: '.format(length))
-    guess_count = 1
-    return guess, guess_count
-
-
-# Two provide_feedback functions are presented for teaching purposes.
-# Comment out the second to test the first (the second overwrites the first).
-# provide_feedback with recursion
-def provide_feedback(guess, rand_num, guess_count):
-    guess = int(guess)
-    if guess == rand_num:
-        print("\nCongratulations. You guessed the correct number in {0} tries."
-              .format(guess_count))
-        return
-    elif guess < rand_num:
-        guess = input("\nTry again. Guess a higher number: ")
-    else:
-        guess = input("\nTry again. Guess a lower number: ")
-    guess_count += 1
-    provide_feedback(guess, rand_num, guess_count)
-
-
-# provide_feedback with while
-def provide_feedback(guess, rand_num, guess_count):
+def StartGuessing(numberDigits, mainNumber, numberTries):
+    userInput = 0
+    # continuously ask for User Input and count the number of guesses it took to guess the right answer
     while True:
-        guess = int(guess)
-        if guess == rand_num:
-            print("\nCongratulations. "
-                  "You guessed the correct number in {0} tries."
-                  .format(guess_count))
-            return
-        elif guess < rand_num:
-            guess = input("\nTry again. Guess a higher number: ")
-        else:
-            guess = input("\nTry again. Guess a lower number: ")
-        guess_count += 1
+        try:
+            userInput = int(input("Enter a " + str(numberDigits) + " digit number: "))
+            if(userInput > 0 and (not (len(str(userInput)) == numberDigits))):
+                raise ValueError
+            elif(userInput < 0 and (not (len(str(userInput)) == numberDigits + 1))):
+                raise ValueError
+            numberTries += 1
 
-###############################################################################
-# Testing: (uncomment to test)
-
-
-def testing():
-    print(get_random(1), "one-digit")
-    print(get_random(2), "two-digits")
-    print(get_random(3), "three-digits")
-
-    test_input = (5, 4, 1)
-    print('provided guess = {}, rand_num = {}, count = {}'
-          .format(*test_input))
-    provide_feedback(*test_input)
-
-###############################################################################
-
+            if(userInput == mainNumber):
+                print("Congratulations. You guessed the correct number in " + str(numberTries) + " tries.")
+                break
+            elif(userInput < mainNumber):
+                print("Guess a higher number. Try again!")
+            elif(userInput > mainNumber):
+                print("Guess a lower number. Try again!")
+        except ValueError:
+            print("Invalid input. Enter a valid " + str(numberDigits) + " digit integer.")
+            continue
 
 def main():
-    print("Let's play the mimsmind0 game.")
-    # testing()
+    numberDigits = 1 # number of digits
+    mainNumber = 0 # the corrent answer to the game
+    numberTries = 0
+    
+    # check user input
+    if(len(sys.argv) == 1):
+        StartGame(numberDigits)
+    elif(len(sys.argv) == 2):
+        # check if the 2nd input is actually an integer
+        try:
+            userLengthInput = int(sys.argv[1])
+            if(userLengthInput <= 0):
+                raise ValueError
+            else:
+                numberDigits = userLengthInput
+                StartGame(numberDigits)
+            return True
+        except ValueError:
+            print("Invalid user input: " + str(sys.argv[1]) + ". Please enter a valid positive integer")
+            return False
 
-    length = get_length()
-    rand_num = get_random(length)
-    guess, guess_count = get_initial_guess(length)
-    provide_feedback(guess, rand_num, guess_count)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
